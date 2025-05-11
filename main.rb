@@ -1,3 +1,9 @@
 # frozen_string_literal: true
 
-# Tic Tac Toe
+require_relative 'lib/tic_tac_toe'
+
+def main
+  TicTacToe.new
+end
+
+main
