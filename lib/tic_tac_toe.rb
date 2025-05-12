@@ -24,8 +24,8 @@ class TicTacToe
   end
 
   def create_player
-    Player.new(CliHelper.get_input(FLOW.dig(:player, :re),
-                                   FLOW.dig(:player, :msg).call(Player.total_player + 1)))
+    Player.new(CliHelper.get_input(FLOW.dig(:player, :re), FLOW.dig(:player, :msg).call(Player.total_player + 1),
+                                   FLOW.dig(:player, :err_msg)))
   end
 
   def mode_selection
