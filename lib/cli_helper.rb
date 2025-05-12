@@ -45,15 +45,12 @@ module CliHelper
     input_value = ''
     first_entry = true
 
-    until input_value =~ regex && input_value.empty? == false
-      if first_entry
-        puts "\n* #{prompt_msg}"
-        first_entry = false
-      else
-        puts "\n* #{error_msg}"
-      end
+    until input_value.match?(regex) && !input_value.empty?
+      message = first_entry ? prompt_msg : error_msg
+      puts "\n* #{message}"
+      first_entry = false
+
       input_value = gets.chomp
-      # Keyword to quit the program early
       exit if input_value == 'exit'
     end
     input_value

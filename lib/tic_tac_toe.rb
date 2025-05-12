@@ -36,6 +36,8 @@ class TicTacToe
     mode == 1 ? pvp : pve
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # Disable warning as the intend for this method is clear
   def display_grid
     grid = <<~GRID
       +---+---+---+
@@ -48,6 +50,7 @@ class TicTacToe
     GRID
     puts grid
   end
+  # rubocop:enable Metrics/AbcSize
 
   def init_game
     @open_slots = GRID_SLOTS.dup
