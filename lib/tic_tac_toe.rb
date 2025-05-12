@@ -8,9 +8,9 @@ require_relative 'player'
 class TicTacToe
   include CliHelper
 
-  attr_accessor :mode, :p1, :p2, :p1_turn, :has_won, :round
+  attr_accessor :mode, :p1, :p2, :p1_turn, :has_won, :open_slots
 
-  GRID_SLOT = [*1..9].freeze
+  GRID_SLOTS = [*1..9].freeze
   WIN_SEQ = [123, 456, 789, 147, 258, 369, 159, 357].freeze
   WIN_SEQ_ARR = WIN_SEQ.map { |seq| seq.to_s.chars }
 
@@ -43,24 +43,28 @@ class TicTacToe
   end
 
   def init_game
-    @round = 0
+    @open_slots = GRID_SLOTS.dup
     @p1_turn = [true, false].sample
     @has_won = false
 
-    # puts "\n* #{p1_turn ? p1.name : p2.name} will make the first turn"
     puts FLOW.dig(:first_turn, :msg).call(p1_turn ? p1.name : p2.name)
   end
 
   def play(player)
-    player.add_move(CliHelper.get_input(FLOW.dig(:play, :re), FLOW.dig(:play, :prompt_msg).call(player.name)))
-    # self.round += 0.5
+    slot = CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :prompt_msg).call(player.name))
+    player.add_move(slot)
+    remove_slot_option(slot.to_i)
+    self.p1_turn = !p1_turn
+  end
+
+  def remove_slot_option(slot)
+    self.open_slots = open_slots.reject { |open_slot| open_slot == slot }
   end
 
   def check_data
     return unless p1.move_check >= 3 || p2.move_check >= 3
 
     # only start checking from round 3
-
     # puts "p1: #{p1.data}"
     # puts "p2: #{p2.data}"
     WIN_SEQ_ARR.each do |seq|
@@ -74,13 +78,20 @@ class TicTacToe
     until has_won
       if p1_turn
         play(p1)
-        self.p1_turn = false
       else
         play(p2)
-        self.p1_turn = true
       end
       self.has_won = check_data
-      puts "Has someone won? #{has_won}"
+      # puts "Has someone won? #{has_won}"
+    end
+    announce_result
+  end
+
+  def announce_result
+    if !p1_turn
+      puts 'P1 Won'
+    else
+      puts 'P2 Won'
     end
   end
 
@@ -100,4 +111,3 @@ end
 
 # TODO: Generate 3 x 3 grid
 # TODO: Mode selection: PvP or PvE
-# TODO: Get user input in the following number range 1 - 9
