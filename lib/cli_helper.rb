@@ -14,7 +14,7 @@ module CliHelper
 
   INFO = <<-'INFO'
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- |  A Command Line Game by: Ancient Nimbus | Ver: 0.0.1  |
+ |  A Command Line Game by: Ancient Nimbus | Ver: 1.0.0  |
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
  How-to-play:
@@ -27,31 +27,31 @@ module CliHelper
   2) Player vs Computer
   INFO
 
-  GRID = <<~GRID
-    +---+---+---+
-    | 7 | 8 | 9 |
-    +---+---+---+
-    | 4 | 5 | 6 |
-    +---+---+---+
-    | 1 | 2 | 3 |
-    +---+---+---+
-  GRID
-
   FLOW = {
-    mode: { re: /\A[1-2]\z/, prompt_msg: 'Select a mode (1 or 2) to continue...' },
+    mode: { re: /\A[1-2]\z/, prompt_msg: 'Select a mode (1 or 2) to continue...',
+            error_msg: 'Please enter a valid mode' },
     player: { re: /.*/, prompt_msg: ->(name) { "Please name #{name}" } },
-    play: { re: /\A[1-9]\z/, prompt_msg: ->(name) { "It is #{name}'s turn, pick a grid from 1 to 9" } },
+    play: { re: /\A[1-9]\z/, prompt_msg: lambda { |name|
+      "It is #{name}'s turn, choose from grid number 1 to 9"
+    }, error_msg: 'Invalid input, choose again!' },
     first_turn: { msg: lambda { |name|
       "\n* Randomly picking who is starting first... \n* #{name} will make the first turn"
     } }
   }.freeze
 
-  def self.get_input(regex, prompt_msg)
+  def self.get_input(regex, prompt_msg, error_msg = nil)
     # regex {regex}
     # prompt_msg {string}
     input_value = ''
+    first_entry = true
+
     until input_value =~ regex && input_value.empty? == false
-      puts "\n* #{prompt_msg}"
+      if first_entry
+        puts "\n* #{prompt_msg}"
+        first_entry = false
+      else
+        puts "\n* #{error_msg}"
+      end
       input_value = gets.chomp
       # Keyword to quit the program early
       exit if input_value == 'exit'

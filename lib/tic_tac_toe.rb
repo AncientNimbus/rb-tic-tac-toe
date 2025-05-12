@@ -8,15 +8,15 @@ require_relative 'player'
 class TicTacToe
   include CliHelper
 
-  attr_accessor :mode, :p1, :p2, :p1_turn, :has_won, :open_slots
+  attr_accessor :mode, :p1, :p2, :p1_turn, :has_won, :open_slots, :display_slots
 
   GRID_SLOTS = [*1..9].freeze
   WIN_SEQ = [123, 456, 789, 147, 258, 369, 159, 357].freeze
   WIN_SEQ_ARR = WIN_SEQ.map { |seq| seq.to_s.chars }
 
   def initialize
-    # welcome
-    @mode = CliHelper.get_input(FLOW.dig(:mode, :re), FLOW.dig(:mode, :prompt_msg)).to_i
+    welcome
+    @mode = CliHelper.get_input(FLOW.dig(:mode, :re), FLOW.dig(:mode, :prompt_msg), FLOW.dig(:mode, :error_msg)).to_i
     @p1 = create_player
 
     mode_selection
@@ -37,13 +37,21 @@ class TicTacToe
   end
 
   def display_grid
-    size = 3
-    puts "Generating a #{size} x #{size} grid..."
-    puts GRID
+    grid = <<~GRID
+      +---+---+---+
+      | #{display_slots[6]} | #{display_slots[7]} | #{display_slots[8]} |
+      +---+---+---+
+      | #{display_slots[3]} | #{display_slots[4]} | #{display_slots[5]} |
+      +---+---+---+
+      | #{display_slots[0]} | #{display_slots[1]} | #{display_slots[2]} |
+      +---+---+---+
+    GRID
+    puts grid
   end
 
   def init_game
     @open_slots = GRID_SLOTS.dup
+    @display_slots = GRID_SLOTS.dup
     @p1_turn = [true, false].sample
     @has_won = false
 
@@ -51,14 +59,26 @@ class TicTacToe
   end
 
   def play(player)
-    slot = CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :prompt_msg).call(player.name))
+    display_grid
+    slot = if player.is_a?(Player)
+             CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :prompt_msg).call(player.name),
+                                 FLOW.dig(:play, :error_msg))
+           else
+             # Computer's choice
+             open_slots.sample
+           end
     player.add_move(slot)
     remove_slot_option(slot.to_i)
     self.p1_turn = !p1_turn
   end
 
   def remove_slot_option(slot)
+    update_display(slot)
     self.open_slots = open_slots.reject { |open_slot| open_slot == slot }
+  end
+
+  def update_display(slot)
+    display_slots[slot - 1] = p1_turn ? 'X' : 'O'
   end
 
   def check_data
@@ -88,6 +108,7 @@ class TicTacToe
   end
 
   def announce_result
+    display_grid
     if !p1_turn
       puts 'P1 Won'
     else
