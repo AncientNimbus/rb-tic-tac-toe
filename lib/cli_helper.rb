@@ -40,8 +40,10 @@ module CliHelper
   FLOW = {
     mode: { re: /\A[1-2]\z/, prompt_msg: 'Select a mode (1 or 2) to continue...' },
     player: { re: /.*/, prompt_msg: ->(name) { "Please name #{name}" } },
-    play: { re: /\A[1-9]\z/, prompt_msg: 'Pick a grid number (1 to 9)' }
-
+    play: { re: /\A[1-9]\z/, prompt_msg: ->(name) { "It is #{name}'s turn, pick a grid from 1 to 9" } },
+    first_turn: { msg: lambda { |name|
+      "\n* Randomly picking who is starting first... \n* #{name} will make the first turn"
+    } }
   }.freeze
 
   def self.get_input(regex, prompt_msg)

@@ -47,23 +47,27 @@ class TicTacToe
     @p1_turn = [true, false].sample
     @has_won = false
 
-    puts "#{p1_turn ? p1.name : p2.name} will take the first turn"
+    # puts "\n* #{p1_turn ? p1.name : p2.name} will make the first turn"
+    puts FLOW.dig(:first_turn, :msg).call(p1_turn ? p1.name : p2.name)
   end
 
   def play(player)
-    player.add_move(CliHelper.get_input(FLOW.dig(:play, :re), FLOW.dig(:play, :prompt_msg)))
+    player.add_move(CliHelper.get_input(FLOW.dig(:play, :re), FLOW.dig(:play, :prompt_msg).call(player.name)))
     # self.round += 0.5
   end
 
   def check_data
-    if p1.move_check >= 3 || p2.move_check >= 3
-      # only start checking from round 3
-      puts "p1: #{p1.data}"
-      puts "p2: #{p2.data}"
-      true
-    else
-      false
+    return unless p1.move_check >= 3 || p2.move_check >= 3
+
+    # only start checking from round 3
+
+    # puts "p1: #{p1.data}"
+    # puts "p2: #{p2.data}"
+    WIN_SEQ_ARR.each do |seq|
+      return true if (seq - p1.data).empty?
+      return true if (seq - p2.data).empty?
     end
+    false
   end
 
   def game_loop
@@ -76,6 +80,7 @@ class TicTacToe
         self.p1_turn = true
       end
       self.has_won = check_data
+      puts "Has someone won? #{has_won}"
     end
   end
 
