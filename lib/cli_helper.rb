@@ -14,7 +14,7 @@ module CliHelper
 
   INFO = <<-'INFO'
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- |  A Command Line Game by: Ancient Nimbus | Ver: 1.2.0  |
+ |  A Command Line Game by: Ancient Nimbus | Ver: 1.2.1  |
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
  How-to-play:
@@ -43,6 +43,9 @@ module CliHelper
            err_msg: 'Please enter a valid input!' },
 
     player: { re: /.*/, msg: ->(num) { "Please name Player #{num}" } },
+
+    ai: { name: 'Computer', feedback_msg1: ->(name) { "\n* #{name} is thinking..." },
+          feedback_msg2: ->(name, num) { "* #{name} has chose grid #{num}!" } },
 
     play: { re: /\A[1-9]\z/, msg: lambda { |name|
       "It is #{name}'s turn, choose from grid number 1 to 9"
