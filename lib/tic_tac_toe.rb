@@ -8,7 +8,7 @@ require_relative 'player'
 class TicTacToe
   include CliHelper
 
-  attr_accessor :mode, :p1, :p2, :p1_turn, :has_won, :open_slots, :display_slots
+  attr_accessor :mode, :p1, :p2, :p1_turn, :has_won, :open_slots, :display_slots, :tie
 
   GRID_SLOTS = [*1..9].freeze
   WIN_SEQ = [123, 456, 789, 147, 258, 369, 159, 357].freeze
@@ -23,8 +23,8 @@ class TicTacToe
   end
 
   def welcome
-    puts LOGO.colorize(:light_yellow)
-    puts INFO
+    puts LOGO.colorize(:green)
+    puts INFO.colorize(:green)
   end
 
   def create_player
@@ -57,18 +57,34 @@ class TicTacToe
     @display_slots = GRID_SLOTS.dup
     @p1_turn = [true, false].sample
     @has_won = false
+    @tie = false
+    p1.clear_save
+    p2.clear_save
 
     puts FLOW.dig(:first_turn, :msg).call(p1_turn ? p1.name : p2.name)
   end
 
-  def play(player)
+  def game_loop
+    until has_won
+      p1_turn ? play_turn(p1) : play_turn(p2)
+      self.has_won = check_data
+    end
+    announce_result
+  end
+
+  def play
+    init_game
+    game_loop
+  end
+
+  def play_turn(player)
     display_grid
-    slot = if player.is_a?(Player)
+    slot = if player.is_a?(Computer)
+             # Computer's choice
+             player.rand_num(open_slots)
+           else
              CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :prompt_msg).call(player.name),
                                  FLOW.dig(:play, :error_msg))
-           else
-             # Computer's choice
-             open_slots.sample
            end
     player.add_move(slot)
     remove_slot_option(slot.to_i)
@@ -81,57 +97,58 @@ class TicTacToe
   end
 
   def update_display(slot)
-    display_slots[slot - 1] = p1_turn ? 'X' : 'O'
+    display_slots[slot - 1] = p1_turn ? 'X'.colorize(:yellow) : 'O'.colorize(:magenta)
   end
 
+  # rubocop:disable Metrics/AbcSize
   def check_data
     return unless p1.move_check >= 3 || p2.move_check >= 3
 
     # only start checking from round 3
-    # puts "p1: #{p1.data}"
-    # puts "p2: #{p2.data}"
     WIN_SEQ_ARR.each do |seq|
       return true if (seq - p1.data).empty?
       return true if (seq - p2.data).empty?
     end
+
+    if open_slots.empty?
+      self.tie = true
+      return true
+    end
     false
   end
-
-  def game_loop
-    until has_won
-      if p1_turn
-        play(p1)
-      else
-        play(p2)
-      end
-      self.has_won = check_data
-      # puts "Has someone won? #{has_won}"
-    end
-    announce_result
-  end
+  # rubocop:enable Metrics/AbcSize
 
   def announce_result
     display_grid
-    if !p1_turn
-      puts 'P1 Won'
+
+    if tie
+      puts 'It is a Tie!'
     else
-      puts 'P2 Won'
+      puts !p1_turn ? 'P1 Won' : 'P2 Won'
     end
+
+    restart
   end
 
   def pvp
-    puts 'Player vs Player'
+    puts "\n* Player vs Player mode selected"
     self.p2 = create_player
 
-    init_game
-    game_loop
+    play
   end
 
   def pve
-    puts 'Player vs Computer'
+    puts "\n* Player vs Computer mode selected"
     self.p2 = Computer.new
+
+    play
+  end
+
+  def restart
+    if CliHelper.get_input(/\byes\b/, 'Restart?', 'Wrong input!') == 'yes'
+      play
+    else
+      exit
+    end
   end
 end
-
-# TODO: Generate 3 x 3 grid
-# TODO: Mode selection: PvP or PvE

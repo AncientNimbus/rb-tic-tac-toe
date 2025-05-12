@@ -38,7 +38,10 @@ class Computer < Player
     super('Computer')
   end
 
-  def rand_num
-    p 'Pick a random number between 1-9'
+  def rand_num(arr)
+    puts "\n* #{name} is thinking..."
+    slot = arr.sample
+    puts "* #{name} has chose grid #{slot}!"
+    slot.to_s
   end
 end

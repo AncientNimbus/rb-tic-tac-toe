@@ -14,13 +14,14 @@ module CliHelper
 
   INFO = <<-'INFO'
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- |  A Command Line Game by: Ancient Nimbus | Ver: 1.0.0  |
+ |  A Command Line Game by: Ancient Nimbus | Ver: 1.1.0  |
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
  How-to-play:
-  * some instruction
-  * some more instruction
-  * some more instruction
+  * Players take turns placing their mark ("X" or "O") in an empty square on the grid.
+  * On your turn, choose any empty square and place your mark there.
+  * The first player to get three of their marks in a row (across, down, or diagonally) wins.
+  * If all nine squares are filled and no player has three in a row, the game is a draw.
 
  Mode selection:
   1) Player vs Player
