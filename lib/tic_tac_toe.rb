@@ -25,11 +25,11 @@ class TicTacToe
 
   def create_player
     Player.new(CliHelper.get_input(FLOW.dig(:player, :re),
-                                   FLOW.dig(:player, :msg).call("Player #{Player.total_player + 1}")))
+                                   FLOW.dig(:player, :msg).call(Player.total_player + 1)))
   end
 
   def mode_selection
-    puts mode == 1 ? "\n* Player vs Player mode selected" : "\n* Player vs Computer mode selected"
+    puts mode == 1 ? FLOW.dig(:mode, :pvp) : FLOW.dig(:mode, :pve)
     @p1 = create_player
     self.p2 = if mode == 1
                 create_player
@@ -70,7 +70,7 @@ class TicTacToe
   def game_loop
     until has_won
       p1_turn ? play_turn(p1) : play_turn(p2)
-      self.has_won = check_data
+      self.has_won = check_data?
     end
     announce_result
   end
@@ -100,11 +100,11 @@ class TicTacToe
   end
 
   def update_display(slot)
-    display_slots[slot - 1] = p1_turn ? 'X'.colorize(:yellow) : 'O'.colorize(:magenta)
+    display_slots[slot - 1] = p1_turn ? FLOW.dig(:shape, :x).colorize(:yellow) : FLOW.dig(:shape, :o).colorize(:magenta)
   end
 
   # rubocop:disable Metrics/AbcSize
-  def check_data
+  def check_data?
     return unless p1.move_check >= 3 || p2.move_check >= 3
 
     # only start checking from round 3
@@ -134,6 +134,6 @@ class TicTacToe
   end
 
   def restart
-    CliHelper.get_input(FLOW.dig(:rst, :re), FLOW.dig(:rst, :msg), FLOW.dig(:rst, :err_msg)) == 'yes' ? new_game : exit
+    CliHelper.get_input(FLOW[:rst][:re], FLOW[:rst][:msg], FLOW[:rst][:err_msg]) == FLOW[:keys][:yes] ? new_game : exit
   end
 end

@@ -14,7 +14,7 @@ module CliHelper
 
   INFO = <<-'INFO'
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- |  A Command Line Game by: Ancient Nimbus | Ver: 1.1.0  |
+ |  A Command Line Game by: Ancient Nimbus | Ver: 1.2.0  |
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
  How-to-play:
@@ -31,13 +31,18 @@ module CliHelper
   INFO
 
   FLOW = {
+    keys: { exit: 'exit', yes: 'yes' },
+
     mode: { re: /\A[1-2]\z/, msg: 'Select a mode (1 or 2) to continue...',
-            err_msg: 'Please enter a valid mode!' },
+            err_msg: 'Please enter a valid mode!', pvp: "\n* Player vs Player mode selected",
+            pve: "\n* Player vs Computer mode selected" },
+
+    shape: { x: 'X', o: 'O' },
 
     rst: { re: /\byes\b/, msg: "\n* Restart? (Type: yes)",
            err_msg: 'Please enter a valid input!' },
 
-    player: { re: /.*/, msg: ->(name) { "Please name #{name}" } },
+    player: { re: /.*/, msg: ->(num) { "Please name Player #{num}" } },
 
     play: { re: /\A[1-9]\z/, msg: lambda { |name|
       "It is #{name}'s turn, choose from grid number 1 to 9"
@@ -64,7 +69,7 @@ module CliHelper
       first_entry = false
 
       input_value = gets.chomp
-      exit if input_value == 'exit'
+      exit if input_value == FLOW.dig(:keys, :exit)
     end
     input_value
   end
