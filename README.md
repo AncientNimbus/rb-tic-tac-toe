@@ -1,5 +1,7 @@
 # Tic Tac Toe :diamonds:
 
+![Game Preview](https://github.com/user-attachments/assets/fe85e0f2-0bee-4951-99b5-edb762719c5f)
+
 ## Features (v1.2.0)
 
 - **CLI Game**: A classic game with coloured interface
