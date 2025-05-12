@@ -39,8 +39,7 @@ module CliHelper
 
   FLOW = {
     mode: { re: /\A[1-2]\z/, prompt_msg: 'Select a mode (1 or 2) to continue...' },
-    p1: { re: /.*/, prompt_msg: 'Please name Player 1' },
-    p2: { re: /.*/, prompt_msg: 'Please name Player 2' },
+    player: { re: /.*/, prompt_msg: ->(name) { "Please name #{name}" } },
     play: { re: /\A[1-9]\z/, prompt_msg: 'Pick a grid number (1 to 9)' }
 
   }.freeze
