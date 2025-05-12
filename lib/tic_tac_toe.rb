@@ -15,42 +15,45 @@ class TicTacToe
   WIN_SEQ_ARR = WIN_SEQ.map { |seq| seq.to_s.chars }
 
   def initialize
-    welcome
-    @mode = CliHelper.get_input(FLOW.dig(:mode, :re), FLOW.dig(:mode, :prompt_msg), FLOW.dig(:mode, :error_msg)).to_i
-    @p1 = create_player
-
-    mode_selection
-  end
-
-  def welcome
     puts LOGO.colorize(:green)
     puts INFO.colorize(:green)
+
+    @mode = CliHelper.get_input(FLOW.dig(:mode, :re), FLOW.dig(:mode, :msg),
+                                FLOW.dig(:mode, :err_msg)).to_i
+    mode_selection
   end
 
   def create_player
     Player.new(CliHelper.get_input(FLOW.dig(:player, :re),
-                                   FLOW.dig(:player, :prompt_msg).call("Player #{Player.total_player + 1}")))
+                                   FLOW.dig(:player, :msg).call("Player #{Player.total_player + 1}")))
   end
 
   def mode_selection
-    mode == 1 ? pvp : pve
+    puts mode == 1 ? "\n* Player vs Player mode selected" : "\n* Player vs Computer mode selected"
+    @p1 = create_player
+    self.p2 = if mode == 1
+                create_player
+              else
+                Computer.new
+              end
+    new_game
   end
 
-  # rubocop:disable Metrics/AbcSize
-  # Disable warning as the intend for this method is clear
   def display_grid
+    row_formatter = ->(i) { "| #{display_slots[i]} | #{display_slots[i + 1]} | #{display_slots[i + 2]} |" }
+
     grid = <<~GRID
       +---+---+---+
-      | #{display_slots[6]} | #{display_slots[7]} | #{display_slots[8]} |
+      #{row_formatter.call(6)}
       +---+---+---+
-      | #{display_slots[3]} | #{display_slots[4]} | #{display_slots[5]} |
+      #{row_formatter.call(3)}
       +---+---+---+
-      | #{display_slots[0]} | #{display_slots[1]} | #{display_slots[2]} |
+      #{row_formatter.call(0)}
       +---+---+---+
     GRID
+
     puts grid
   end
-  # rubocop:enable Metrics/AbcSize
 
   def init_game
     @open_slots = GRID_SLOTS.dup
@@ -72,7 +75,7 @@ class TicTacToe
     announce_result
   end
 
-  def play
+  def new_game
     init_game
     game_loop
   end
@@ -83,8 +86,8 @@ class TicTacToe
              # Computer's choice
              player.rand_num(open_slots)
            else
-             CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :prompt_msg).call(player.name),
-                                 FLOW.dig(:play, :error_msg))
+             CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :msg).call(player.name),
+                                 FLOW.dig(:play, :err_msg))
            end
     player.add_move(slot)
     remove_slot_option(slot.to_i)
@@ -122,33 +125,15 @@ class TicTacToe
     display_grid
 
     if tie
-      puts 'It is a Tie!'
+      puts FLOW.dig(:tie, :msg)
     else
-      puts !p1_turn ? 'P1 Won' : 'P2 Won'
+      puts !p1_turn ? FLOW.dig(:win, :msg).call(p1.name) : FLOW.dig(:win, :msg).call(p2.name)
     end
 
     restart
   end
 
-  def pvp
-    puts "\n* Player vs Player mode selected"
-    self.p2 = create_player
-
-    play
-  end
-
-  def pve
-    puts "\n* Player vs Computer mode selected"
-    self.p2 = Computer.new
-
-    play
-  end
-
   def restart
-    if CliHelper.get_input(/\byes\b/, 'Restart?', 'Wrong input!') == 'yes'
-      play
-    else
-      exit
-    end
+    CliHelper.get_input(FLOW.dig(:rst, :re), FLOW.dig(:rst, :msg), FLOW.dig(:rst, :err_msg)) == 'yes' ? new_game : exit
   end
 end

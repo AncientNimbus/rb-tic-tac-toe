@@ -26,28 +26,40 @@ module CliHelper
  Mode selection:
   1) Player vs Player
   2) Player vs Computer
+
+ You can type 'exit' to leave the game at any point.
   INFO
 
   FLOW = {
-    mode: { re: /\A[1-2]\z/, prompt_msg: 'Select a mode (1 or 2) to continue...',
-            error_msg: 'Please enter a valid mode' },
-    player: { re: /.*/, prompt_msg: ->(name) { "Please name #{name}" } },
-    play: { re: /\A[1-9]\z/, prompt_msg: lambda { |name|
+    mode: { re: /\A[1-2]\z/, msg: 'Select a mode (1 or 2) to continue...',
+            err_msg: 'Please enter a valid mode!' },
+
+    rst: { re: /\byes\b/, msg: "\n* Restart? (Type: yes)",
+           err_msg: 'Please enter a valid input!' },
+
+    player: { re: /.*/, msg: ->(name) { "Please name #{name}" } },
+
+    play: { re: /\A[1-9]\z/, msg: lambda { |name|
       "It is #{name}'s turn, choose from grid number 1 to 9"
-    }, error_msg: 'Invalid input, choose again!' },
+    }, err_msg: 'Invalid input, choose again!' },
+
     first_turn: { msg: lambda { |name|
       "\n* Randomly picking who is starting first... \n* #{name} will make the first turn"
-    } }
+    } },
+
+    tie: { msg: "\n* It is a Tie!" },
+
+    win: { msg: ->(name) { "\n* #{name} has won this round!" } }
   }.freeze
 
-  def self.get_input(regex, prompt_msg, error_msg = nil)
+  def self.get_input(regex, msg, err_msg = nil)
     # regex {regex}
-    # prompt_msg {string}
+    # msg {string}
     input_value = ''
     first_entry = true
 
     until input_value.match?(regex) && !input_value.empty?
-      message = first_entry ? prompt_msg : error_msg
+      message = first_entry ? msg : err_msg
       puts "\n* #{message}"
       first_entry = false
 
