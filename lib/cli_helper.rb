@@ -14,7 +14,7 @@ module CliHelper
 
   INFO = <<-'INFO'
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- |  A Command Line Game by: Ancient Nimbus | Ver: 1.2.2  |
+ |  A Command Line Game by: Ancient Nimbus | Ver: 1.2.3  |
  +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
  How-to-play:
@@ -60,19 +60,23 @@ module CliHelper
     win: { msg: ->(name) { "\n* #{name} has won this round!" } }
   }.freeze
 
-  def self.get_input(regex, msg, err_msg = nil)
-    # regex {regex}
-    # msg {string}
+  # A method that collects user input, and only returns the value
+  # when it is validated against the provided Regex pattern.
+  # @param reg [Regexp] a Regex pattern to check against user inputs
+  # @param msg [String] prompt to print to the user
+  # @param err_msg [String] display warning message when on invalid inputs
+  # @return [String] user input
+  def get_input(reg, msg, err_msg = nil, exit_str: 'exit')
     input_value = ''
     first_entry = true
 
-    until input_value.match?(regex) && !input_value.empty?
+    until input_value.match?(reg) && !input_value.empty?
       message = first_entry ? msg : err_msg
       puts "\n* #{message}"
       first_entry = false
 
       input_value = gets.chomp
-      exit if input_value == FLOW.dig(:keys, :exit)
+      exit if input_value == exit_str
     end
     input_value
   end

@@ -18,14 +18,13 @@ class TicTacToe
     puts LOGO.colorize(:green)
     puts INFO.colorize(:green)
 
-    @mode = CliHelper.get_input(FLOW.dig(:mode, :re), FLOW.dig(:mode, :msg),
-                                FLOW.dig(:mode, :err_msg)).to_i
+    @mode = get_input(FLOW.dig(:mode, :re), FLOW.dig(:mode, :msg), FLOW.dig(:mode, :err_msg)).to_i
     mode_selection
   end
 
   def create_player
-    Player.new(CliHelper.get_input(FLOW.dig(:player, :re), FLOW.dig(:player, :msg).call(Player.total_player + 1),
-                                   FLOW.dig(:player, :err_msg)))
+    Player.new(get_input(FLOW.dig(:player, :re), FLOW.dig(:player, :msg).call(Player.total_player + 1),
+                         FLOW.dig(:player, :err_msg)))
   end
 
   def mode_selection
@@ -86,8 +85,8 @@ class TicTacToe
              # Computer's choice
              player.rand_num(open_slots)
            else
-             CliHelper.get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :msg).call(player.name),
-                                 FLOW.dig(:play, :err_msg))
+             get_input(/\A#{open_slots}\z/, FLOW.dig(:play, :msg).call(player.name),
+                       FLOW.dig(:play, :err_msg))
            end
     player.add_move(slot)
     remove_slot_option(slot.to_i)
@@ -134,6 +133,6 @@ class TicTacToe
   end
 
   def restart
-    CliHelper.get_input(FLOW[:rst][:re], FLOW[:rst][:msg], FLOW[:rst][:err_msg]) == FLOW[:keys][:yes] ? new_game : exit
+    get_input(FLOW[:rst][:re], FLOW[:rst][:msg], FLOW[:rst][:err_msg]) == FLOW[:keys][:yes] ? new_game : exit
   end
 end
